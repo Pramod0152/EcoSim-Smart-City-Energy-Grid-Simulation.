@@ -38,8 +38,7 @@ export class SimulationService implements OnModuleInit {
       console.log(`║   NEW SIMULATION CYCLE STARTING       ║`);
       console.log(`╚════════════════════════════════════════╝`);
       console.log(`========================================`);
-
-      console.log(`[SIMULATION] [${index}] ${actor.name} is processing...`);
+      
       actor.tick();
 
       const report = actor.getReport();
