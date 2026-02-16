@@ -1,15 +1,22 @@
 import { GridActor } from 'src/domain/grid-actor';
+import { WeatherService } from 'src/modules/weather/weather.service';
 
 export class SolarPlant extends GridActor {
-  tick(): void {
-    const isSunny: boolean = Math.random() > 0.5;
+  private readonly capacity: number = 50;
+  constructor(
+    id: string,
+    name: string,
+    private readonly weatherService: WeatherService,
+  ) {
+    super(id, name);
+  }
 
-    if (isSunny) {
-      this.energyBalance += 20;
-      console.log(`-> [${this.name}] is producing 20kWh`);
-    } else {
-      this.energyBalance -= 20;
-      console.log(`-> [${this.name}] is covered by clouds.`);
-    }
+  tick(): void {
+    const sunLight: number = this.weatherService.getSunLight();
+
+    this.energyBalance = this.capacity * sunLight;
+    console.log(
+      `-> [SOLAR] ${this.name}: Generating ${this.energyBalance.toFixed(1)}kWh (Sun: ${(sunLight * 100).toFixed(0)}%)`,
+    );
   }
 }

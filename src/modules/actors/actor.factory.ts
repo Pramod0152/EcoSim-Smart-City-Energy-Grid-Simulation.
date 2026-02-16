@@ -4,9 +4,12 @@ import { CreateActorDto } from './dto/create-actor.dto';
 import { ActorType } from 'src/common/enum';
 import { CoalPlant } from './entities/coal-plant.entity';
 import { SolarPlant } from './entities/solar-plant.entity';
+import { WeatherService } from '../weather/weather.service';
 
 @Injectable()
 export class ActorFactory {
+  constructor(private readonly weatherService: WeatherService) {}
+
   createActor(dto: CreateActorDto) {
     const id = uuidv4();
 
@@ -14,7 +17,7 @@ export class ActorFactory {
       case ActorType.COAL_PLANT:
         return new CoalPlant(id, dto.name);
       case ActorType.SOLAR_PLANT:
-        return new SolarPlant(id, dto.name);
+        return new SolarPlant(id, dto.name, this.weatherService);
       default:
         throw new BadRequestException(
           `Actor type ${dto.type} is not supported.`,
