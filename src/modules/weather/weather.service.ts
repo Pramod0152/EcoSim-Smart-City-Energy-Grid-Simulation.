@@ -11,7 +11,6 @@ export class WeatherService {
     // Clamp the value between 0 and 1
     if (this.sunLightLevel > 1) this.sunLightLevel = 1;
     if (this.sunLightLevel < 0) this.sunLightLevel = 0;
-    console.log(`[WEATHER] Sun light level: ${this.sunLightLevel}`);
   }
 
   getSunLight(): number {

@@ -1,9 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ActorService } from '../actors/actors.service';
 import { WeatherService } from '../weather/weather.service';
+import { Battery } from '../actors/entities/battery.entity';
 
 @Injectable()
 export class SimulationService implements OnModuleInit {
+  private cycleCount = 0;
+
   constructor(
     private readonly actorService: ActorService,
     private readonly weatherService: WeatherService,
@@ -11,43 +14,69 @@ export class SimulationService implements OnModuleInit {
 
   onModuleInit() {
     console.log(
-      '[SIMULATION] Service initialized. Running cycle every 3 seconds.',
+      '[SIMULATION] Service initialized. Running cycle every 3 seconds.\n',
     );
 
     // The Simulation Loop (The Heartbeat)
     setInterval(() => {
       this.runCycle();
-    }, 3000); // Every 10 seconds
+    }, 3000); // Every 3 seconds
   }
 
   private runCycle() {
-    this.weatherService.updateWeather();
+    this.cycleCount++;
     const registry = this.actorService.findAll();
 
-    //POLYMORPHISM IN ACTION:
-    // We treat objects as a 'GridActor'
-    // we don't care if it's Coal, Solar, or a House.
-
     if (registry.length === 0) {
-      console.log('[SIMULATION] No actors in registry.');
+      console.log(`[CYCLE ${this.cycleCount}] No actors in registry.\n`);
       return;
     }
 
-    console.log(`[SIMULATION] Processing ${registry.length} actor(s).`);
-    console.log(`========================================`);
-    console.log(`╔════════════════════════════════════════╗`);
-    console.log(`║   NEW SIMULATION CYCLE STARTING       ║`);
-    console.log(`╚════════════════════════════════════════╝`);
-    console.log(`========================================`);
+    // Update weather and get current conditions
+    this.weatherService.updateWeather();
+    const sunLight = this.weatherService.getSunLight();
 
-    registry.forEach((actor, index) => {
-      // This is where polymorphism happens!
-      // We call tick() without knowing the concrete type
+    // ===== CYCLE HEADER =====
+    console.log(`\n╔══════════════════════════════════════════════════════════╗`);
+    console.log(`║  CYCLE ${this.cycleCount.toString().padStart(3, ' ')} - Processing ${registry.length} actor(s)                      ║`);
+    console.log(`╚══════════════════════════════════════════════════════════╝`);
 
+    // ===== WEATHER CONDITIONS =====
+    console.log(`\n[WEATHER] Sunlight: ${(sunLight * 100).toFixed(1)}%`);
+
+    // ===== ACTOR ACTIONS =====
+    console.log(`\n[ACTIONS]`);
+    let netGridBalance = 0;
+
+    registry.forEach((actor) => {
       actor.tick();
-
-      const report = actor.getReport();
-      console.log(`[SIMULATION] [${index}] ${report} \n\n`);
+      netGridBalance += actor.getEnergyBalance();
     });
+
+    registry.forEach((actor) => {
+      if (actor instanceof Battery) {
+        if (netGridBalance > 0) {
+          actor.charge();
+          netGridBalance += actor.getEnergyBalance();
+        } else {
+          actor.discharge();
+          netGridBalance += actor.getEnergyBalance();
+        }
+      }
+    });
+
+    // ===== ACTOR STATUS SUMMARY =====
+    console.log(`\n[STATUS]`);
+    registry.forEach((actor) => {
+      console.log(`  • ${actor.getReport()}`);
+    });
+
+    // ===== GRID SUMMARY =====
+    console.log(`\n[GRID]`);
+    console.log(`  Net Balance: ${netGridBalance.toFixed(2)}kWh`);
+    console.log(
+      `  Status: ${netGridBalance >= 0 ? '🟢 STABLE' : '🔴 DEFICIT'}`,
+    );
+    console.log(`\n`);
   }
 }

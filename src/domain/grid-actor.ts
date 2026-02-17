@@ -13,6 +13,10 @@ export abstract class GridActor {
    */
   abstract tick(): void;
 
+  public getEnergyBalance(): number {
+    return this.energyBalance;
+  }
+
   // Encapsulation: A public way to read state without allowing external modification
   getReport() {
     return `${this.name} (${this.constructor.name}): ${this.energyBalance}kWh`;
