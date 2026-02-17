@@ -37,8 +37,12 @@ export class SimulationService implements OnModuleInit {
     const sunLight = this.weatherService.getSunLight();
 
     // ===== CYCLE HEADER =====
-    console.log(`\n╔══════════════════════════════════════════════════════════╗`);
-    console.log(`║  CYCLE ${this.cycleCount.toString().padStart(3, ' ')} - Processing ${registry.length} actor(s)                      ║`);
+    console.log(
+      `\n╔══════════════════════════════════════════════════════════╗`,
+    );
+    console.log(
+      `║  CYCLE ${this.cycleCount.toString().padStart(3, ' ')} - Processing ${registry.length} actor(s)                      ║`,
+    );
     console.log(`╚══════════════════════════════════════════════════════════╝`);
 
     // ===== WEATHER CONDITIONS =====
@@ -55,10 +59,10 @@ export class SimulationService implements OnModuleInit {
 
     registry.forEach((actor) => {
       if (actor instanceof Battery) {
-        if (netGridBalance > 0) {
+        if (netGridBalance > 50) {
           actor.charge();
           netGridBalance += actor.getEnergyBalance();
-        } else {
+        } else if (netGridBalance < 0) {
           actor.discharge();
           netGridBalance += actor.getEnergyBalance();
         }

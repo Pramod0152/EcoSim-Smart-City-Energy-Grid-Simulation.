@@ -14,4 +14,8 @@ export class ActorService {
   addActor(actor: GridActor) {
     this.actors.push(actor);
   }
+
+  findOne(id: string): GridActor | undefined {
+    return this.actors.find((actor) => actor.id === id);
+  }
 }

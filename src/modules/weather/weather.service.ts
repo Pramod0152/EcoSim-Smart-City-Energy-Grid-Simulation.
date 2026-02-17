@@ -5,7 +5,7 @@ export class WeatherService {
   private sunLightLevel: number = 1.0;
 
   updateWeather(): void {
-    const change = (Math.random() - 0.5) * 0.2; // +/- 0.1 change
+    const change = (Math.random() - 0.5) * 0.3; // +/- 0.3 change
     this.sunLightLevel += change;
 
     // Clamp the value between 0 and 1

@@ -19,6 +19,6 @@ export abstract class GridActor {
 
   // Encapsulation: A public way to read state without allowing external modification
   getReport() {
-    return `${this.name} (${this.constructor.name}): ${this.energyBalance}kWh`;
+    return `${this.name} [${this.id}] (${this.constructor.name}): ${this.energyBalance}kWh`;
   }
 }
